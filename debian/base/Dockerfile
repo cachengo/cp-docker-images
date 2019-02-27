@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM debian:jessie
+FROM debian:stretch
 
 ARG COMMIT_ID=unknown
 LABEL io.confluent.docker.git.id=$COMMIT_ID
@@ -30,7 +30,6 @@ MAINTAINER partner-support@confluent.io
 LABEL io.confluent.docker=true
 
 # Python
-ENV PYTHON_VERSION="2.7.9-1"
 ENV PYTHON_PIP_VERSION="8.1.2"
 
 # Confluent
@@ -72,17 +71,14 @@ RUN echo "===> Updating debian ....." \
                 git \
                 wget \
                 netcat \
-                python=${PYTHON_VERSION} \
+                python \
+                gnupg \
     && echo "===> Installing python packages ..."  \
     && curl -fSL "https://bootstrap.pypa.io/get-pip.py" | python \
     && pip install --no-cache-dir --upgrade pip==${PYTHON_PIP_VERSION} \
     && pip install --no-cache-dir git+https://github.com/confluentinc/confluent-docker-utils@v0.0.20 \
     && apt remove --purge -y git \
-    && echo "Installing Zulu OpenJDK ${ZULU_OPENJDK_VERSION}" \
-    && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x219BD9C9 \
-    && echo "deb http://repos.azulsystems.com/debian stable  main" >> /etc/apt/sources.list.d/zulu.list \
-    && apt-get -qq update \
-    && apt-get -y install zulu-${ZULU_OPENJDK_VERSION} \
+    && apt-get -y install default-jre default-jdk \
     && echo "===> Installing Kerberos Patch ..." \
     && DEBIAN_FRONTEND=noninteractive apt-get -y install krb5-user \
     && rm -rf /var/lib/apt/lists/* \
